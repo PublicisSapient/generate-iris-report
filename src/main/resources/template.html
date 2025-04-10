@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>IRIS-Test-Results.pdf</title>
+  <meta name="subject" content="IRIS-Test-Results.pdf">
+  </meta>
+  <meta name="description" content="IRIS-Test-Results.pdf">
+  </meta>
+  <meta name="author" content="Auto Generated IRIS Report">
+  </meta>
+  <style th:inline="css">
+    body {
+      font-family: 'BodyFont';
+      font-size: 14px;
+    }
+
+    .bold-text {
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .smaller-text {
+      font-size: 12px;
+      width: 65%;
+      padding-left: 17.5%;
+      padding-top: 20px;
+      line-height: 15px;
+    }
+
+    .smaller-text-left {
+      font-size: 13px;
+      padding-top: 20px;
+      line-height: 15px;
+      text-align: left;
+    }
+
+
+    .spacer {
+      height: 20px;
+    }
+
+    .code {
+      font-family: 'CodeFont';
+      font-size: 12px;
+      display: inline;
+    }
+
+    .top-report-info {
+      text-align: center;
+    }
+
+    .page-header {
+      padding-top: 200px;
+      font-weight: 900;
+    }
+
+    .page-sub-header {
+      font-weight: 900;
+      width: 70%;
+      padding-left: 15%;
+    }
+
+
+    .bolded-info-flex-box {
+      width: 40%;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .other-info-flex-box {
+      width: 45%;
+      text-align: left;
+      display: inline-block;
+      padding-left: 7px;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    p {
+      padding: 0;
+      margin: 0;
+      line-height: 20px;
+    }
+
+    tr:nth-child(6n),
+    tr:nth-child(6n-1),
+    tr:nth-child(6n-2) {
+      background: #DFE3F5;
+    }
+
+    /* .table {
+      padding-top: 5px;
+    } */
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .defect-image {
+      max-height: 80px
+    }
+
+    .img-row {
+      background: #FFF;
+      /* will say error in editor but this is allowed with thymeleaf */
+      width: [(${imageWidth})];
+      max-width: [(${imageWidth})];
+    }
+
+    .img-row-border {
+      background: #FFF;
+      /* will say error in editor but this is allowed with thymeleaf */
+      width: [(${imageWidth})];
+      max-width: [(${imageWidth})];
+      border-bottom: 1px solid #000;
+    }
+
+    .img-row-border-above {
+      background: #FFF;
+      /* will say error in editor but this is allowed with thymeleaf */
+      width: [(${imageWidth})];
+      max-width: [(${imageWidth})];
+      border-top: 1px solid #000;
+    }
+
+    .defect-header {
+      font-weight: 900;
+    }
+
+    table {
+      width: 95%;
+      border-left: 1px solid #000;
+      border-right: 1px solid #000;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+      border-collapse: collapse;
+      -fs-table-paginate: paginate;
+    }
+
+    table th {
+      border: 1px solid #000;
+      border-collapse: collapse;
+    }
+
+    table td {
+      border-left: 1px solid #000;
+    }
+
+    table td:first-child {
+      border-left: none;
+    }
+
+    table td:last-child {
+      border-right: none;
+    }
+
+    th {
+      text-align: center;
+      font-weight: 900;
+    }
+
+    tr {
+      height: 20px;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    tr {
+      height: 20px;
+    }
+   
+    tr:nth-child(44n+1) {
+        page-break-after: always;
+        height: 20px;
+    }
+
+    tr:nth-child(44n+1) {
+        page-break-after: always;
+    }
+
+    #defect-table-special tr:nth-child(44n+1) {
+        page-break-after:avoid;
+    }
+
+    tr:nth-child(44n+1) td {
+        border-bottom: 1px solid #000;
+        height: 20px;
+    }
+
+    .img-row-no-border {
+      border-bottom: 0px solid #000;
+    }
+
+    tr:first-child {
+      page-break-after: avoid;
+    }
+
+    /* tr:last-child td {
+        border-bottom: 1px solid #000;
+    } */
+
+    @page {
+      padding-top: 20px;
+
+      @top-left {
+        content: element(header)
+      }
+    }
+
+    @page:first {
+      @top-left {
+        content: normal;
+      }
+      @bottom-right {
+        content: normal;
+      }
+    }
+
+    div.header {
+      display: block;
+      position: running(header);
+      padding-top: 20px;
+      padding-left: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class='header'>
+    <p class="bold-text">Video clip file name: <span th:text="${videoName}">flashStripes.mp4</span></p>
+    <p class="bold-text">Analyzed on: <span th:text="${formattedDate}">Monday, March 17, 2025 at 1:39p.m.</span></p>
+  </div> 
+  <!-- <div class='footer'>Footer</div> -->
+  <div class="pg-one">
+    <div class="top-report-info">
+      <h1 class="page-header">IRIS Test Results</h1>
+      <div class="spacer" />
+      <p class="page-sub-header">Results of analysis for compliance with Guideline 2.3 of the Web Compliance
+        Accessibility Guidelines (WCAG) 2.0</p>
+      <div class="spacer" />
+      <div class="spacer" />
+      <div class="info-box-container">
+        <div class="bolded-info-flex-box">
+          <p class="bold-text">Video clip file name:</p>
+          <p class="bold-text">Frame rate:</p>
+          <p class="bold-text">Length of material:</p>
+          <p class="bold-text">Total frames:</p>
+          <p class="bold-text">Analyzed on:</p>
+          <p> </p>
+          <p class="bold-text">Result status:</p>
+          <p class="bold-text">Luminance flash failures:</p>
+          <p class="bold-text">Red flash failures:</p>
+          <!-- <p class="bold-text">Pattern failures:</p> -->
+        </div>
+        <div class="other-info-flex-box">
+          <p th:text="${videoName}">flashStripes.mp4</p>
+          <p th:text="${framesPerSec + 'fps'}">25fps</p>
+          <p th:text="${time}">00:00:1.44</p>
+          <p th:text="${totalFrames}">36</p>
+          <p th:text="${formattedDate}">Monday, March 17, 2025 at 1:39p.m.</p>
+          <p> </p>
+          <p th:text="${failed}">Failed</p>
+          <p th:text="${lumFailures + ' frames'}">32 frames</p>
+          <p th:text="${redFailures + ' frames'}">0 frames</p>
+          <!--  th:text="${patternFailures + ' frames'}">0 frames</p> -->
+        </div>
+      </div>
+      <div class="spacer" />
+      <div class="spacer" />
+      <p class="page-sub-header">Source material should be re-analyzed in its entirety for compliance if any
+        changes are made. </p>
+      <div class="spacer" />
+      <p class="smaller-text">Warnings were included in the calculation of defects for this report.</p>
+      <p class="smaller-text" th:if="${failed} == 'Failed' or ${failed} == 'Warning'">Each of the following defect tables lists the analysis results for a single block of
+        consecutive failed or failed / warning frames.</p>
+      <p class="smaller-text" th:if="${failed} == 'Failed' or ${failed} == 'Warning'">For Luminance Flash (Lum) and Red Flash (Red) timestamps
+        are marked with '-' for which indicates a Pass, 'Warning', 'Failure', and 'Extended Failure'.</p>
+      <p class="smaller-text">This output report is for informational purposes only and should not be used as
+        certification or validation of compliance with any legal, regulatory or other requirements</p>
+    </div>
+  </div>
+
+  <div class="page-break"/>
+
+  <p class="bold-text">Graph of Luminance Average Difference Accumulation and Flash Area, Red Average Difference Accumulation and Flash Area</p>
+  <div class="spacer" />
+  <img th:src="${graph}" alt="Graph of Luminance Average Difference Accumulation and Flash Area, Red Average Difference Accumulation and Flash Area" />
+  <div class="spacer" />
+  <p class="smaller-text-left">
+    This graph displays the average difference accumulation lumiance and red values multiplied by the flash area 
+    of each frame throughout the video tested. Together these values determine whether the frames are failing or passing.
+    An explanation for the values used in the calculation of this graph are below.
+    <br/><br/>
+    When spikes in graph are higher and closer together there is likely to be an issue that is a failure or warning.
+    <br/><br/>
+    - Luminance average difference accumulation is used to determine whether a new luminance transition has occurred or not. 
+    If it’s equal or greater than 0.1 (absolute value) a new transition would have occurred.
+    <br/>
+    - Average Red Difference Accumulation is the value used to determine whether a new red transition has occurred or not. 
+    If it’s equal or greater than 20 (absolute value), a new transition would have occurred.  
+    The red value is divided by 200 in order to be on the same scale as luminance.
+    <br/>
+    - The luminance flash area the area proportion of the luminance change between this frame and the one before, which is
+    calculated as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
+    <br/>
+    - The red flash area the area proportion of the red change between this frame and the one before, which is calculated
+    as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
+  </p>
+
+  <div class="page-break" th:if="${failed} == 'Failed' or ${failed} == 'Warning'"/>
+
+  <div th:each="defect, stats : ${defects}">
+    <figcaption id="defect-table-caption-1">
+      <p class="bold-text" th:text="${'Defect ' + stats.count + ' of ' + stats.size}">Defect 1 of 1</p>
+    </figcaption>
+
+
+    <!-- <div class="spacer" /> -->
+    <table aria-label="defect-table-caption-1" 
+      th:class="${defect.size == 44 ? 'defect-table-special' : 'defect-table'}" 
+      th:attr="id=${defect.size == 44 ? 'defect-table-special' : 'defect-table'}">
+      <thead>
+        <tr>
+          <th>Timecode</th>
+          <th>Lum</th>
+          <th>Red</th>
+          <!-- /* <th>Pattern</th> */-->
+          <th class="img-row">Image</th>
+        </tr>
+      </thead>
+
+      <tr th:each="row, stats2 : ${defect}">
+        <td th:text="${row.formattedTimeStamp}">Timestamp</td>
+        <td th:text="${row.luminanceStringResult}">Luminance</td>
+        <td th:text="${row.redFrameResult}">Red</td>
+        <!-- <td th:text="${row.patternFrameResult}">John</td> -->
+        <td th:if="${row.hasExtraRow}"></td>
+        <td th:if="${row.hasScreenshot && stats2.index % 44 == 0}" rowspan="4" class="img-row-border-above">
+          <img class="defect-image" th:src="${row.image}" alt="Image of defect" />
+        </td>
+        <td th:if="${row.hasScreenshot && stats2.index % 44 != 0}" rowspan="4" class="img-row">
+          <img class="defect-image" th:src="${row.image}" alt="Image of defect" />
+        </td>
+      </tr>
+    </table>
+    <div th:if="${stats.index != stats.size - 1}" class="page-break" />
+  </div>
+</body>
+
+</html>
