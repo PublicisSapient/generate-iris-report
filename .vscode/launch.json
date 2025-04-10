@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "args": "useGui=false videoPath=/Users/samcatta/Desktop/test8.mp4 irisPath=/Users/samcatta/Desktop/IRIS/bin/build/macos-release/example/IrisApp pdfName=./test8.pdf" 
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "samcattani.App",
+            "projectName": "accessible-pdf-generator-cl",
+            "args": "useGui=false videoPath=/Users/samcatta/Desktop/test8.mp4 irisPath=/Users/samcatta/Desktop/IRIS/bin/build/macos-release/example/IrisApp pdfName=./test8.pdf" 
+        }
+    ]
+}
