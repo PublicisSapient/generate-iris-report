@@ -338,7 +338,7 @@
         <td th:text="${row.formattedTimeStamp}">Timestamp</td>
         <td th:text="${row.luminanceStringResult}">Luminance</td>
         <td th:text="${row.redFrameResult}">Red</td>
-        <!-- <td th:text="${row.patternFrameResult}">John</td> -->
+        <!-- <td th:text="${row.patternFrameResult}">Pattern</td> -->
         <td th:if="${row.hasExtraRow}"></td>
         <td th:if="${row.hasScreenshot && stats2.index % 44 == 0}" rowspan="4" class="img-row-border-above">
           <img class="defect-image" th:src="${row.image}" alt="Image of defect" />
