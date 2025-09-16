@@ -1,8 +1,8 @@
-+ IRIS Gotchas.
+# IRIS Gotchas.
 
 We will update this file with the lastest list of issues we have encountered when installing IRIS, which is a dependancy for this project.
 
-++ Installing Ninja on OSX
+## Installing Ninja on OSX
 
 ### 1. **Homebrew**
 
