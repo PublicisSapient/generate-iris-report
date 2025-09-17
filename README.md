@@ -37,3 +37,14 @@ If you prefer a GUI, you can use:
 ```
 ./generate-iris-report-gui.sh
 ```
+
+## Acknowledgements
+Original development and architecture: Samantha Cattani
+Architecture, project management and further development: Zoltan Hawryluk.  
+
+This application was made with the kind support of the Publicis Sapient Accessibility Centre of Excellence.
+
+IRIS was develeped by Electronic Arts and no endorsement or cooperation with them is claimed or implied.
+
+## License 
+This application is released under [the MIT Licence](opensource.org/license/mit).
