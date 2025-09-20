@@ -11,12 +11,16 @@ Currently, you should be comfortable with compiling and building code to use thi
 
 1. Install Java from [the Oracle Java Downloads page](https://www.oracle.com/java/technologies/downloads/) You must use Java 8 or higher.
 1. Install Maven from [the Apache Maven Download page](https://maven.apache.org/download.cgi). You must use Maven 3.9.9 or higher.
-1. Install both IRIS and generate-iris-report in the same directory:
-
-```
-git clone git@github.com:electronicarts/IRIS.git
-git clone git@github.com:PublicisSapient/generate-iris-report.git
-```
+1. Install both IRIS and generate-iris-report in the same directory: 
+   ```
+   git clone git@github.com:electronicarts/IRIS.git
+   git clone git@github.com:PublicisSapient/generate-iris-report.git
+   ```
+   or use https urls:
+   ```
+   git clone https://github.com/electronicarts/IRIS.git
+   git clone https://github.com/PublicisSapient/generate-iris-report.git
+   ```
 
 1. Go into the IRIS directory and install IRIS according to the instructions in [the IRIS README.md file](https://github.com/electronicarts/IRIS).  If you are having difficulty building IRIS, please read our [IRIS-gotchas.md](./IRIS-gotchas.md) file.
 1. Go into the `generate-iris-report` directory and run `mvn install`.  This will install and build the `generate-iris-report` Java code.
