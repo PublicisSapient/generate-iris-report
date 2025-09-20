@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ public class App {
 
     private static void generateReport() {
         // try {
-        String irisPathOnly = irisPath.substring(0, irisPath.lastIndexOf("/"));
+        String irisPathOnly = Paths.get(irisPath).getParent().toString();
 
         String videoName = "";
 
@@ -239,27 +240,25 @@ public class App {
             System.out.println("Copying video to IRIS folder");
         }
 
-        int videoFileNameStartIndex = videoFileName.lastIndexOf("/");
-        String videoName = videoFileName.substring(videoFileNameStartIndex + 1, videoFileName.length());
+        Path src = Paths.get(videoFileName);
+        String name = src.getFileName().toString();
 
-        Path file = Paths.get(videoFileName);
-        String name = file.getFileName().toString();
-        String copiedName = name.replaceFirst("(\\.[^\\.]*)?$", "-copy$0");
-        Path copiedFile = file.resolveSibling(copiedName);
-        Files.copy(file, copiedFile);
+        // ../IRIS/bin/build/<os>-release/example/TestVideos
+        Path testVideosDir = Paths.get(irisPath, "TestVideos");
+        Files.createDirectories(testVideosDir);
 
-        new File(irisPath + "TestVideos").mkdirs();
+        Path dst = testVideosDir.resolve(name);
 
-        copiedFile.toFile().renameTo(new File(irisPath + "/TestVideos/" + name));
+        // Copy (overwrite if an old copy exists)
+        Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 
-        copiedFile.toFile().delete();
-
-        return videoName;
+        // return just the filename; callers join it with TestVideos later
+        return name;
     }
 
     private static void setRows(String irisPath, String videoName, ArrayList<ArrayList<Row>> defects)
             throws IOException, FileNotFoundException {
-        String resultsPath = irisPath + "/Results/" + videoName;
+        String resultsPath = Paths.get(irisPath, "Results", videoName).toString();
         File f = getLastModified(resultsPath);
 
         System.out.println(f.getAbsolutePath());
