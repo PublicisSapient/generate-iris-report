@@ -2,8 +2,19 @@
 
 if [ "$#" -ne "2" ]
 then
-    echo "Usage: $(basename "$0") <input-video> <output-pdf>"
+    echo "Usage: $(basename "$0") <input-video> (<output-pdf>|<output-html)" 1>&2
     exit 1
+fi
+
+if [[ $2 == *.pdf ]]
+then
+  OUTPUT_NAME="pdfName=$2"
+elif [[ $2 == *.html ]]
+then
+  OUTPUT_NAME="htmlName=$2"
+else 
+  echo "Error: $2 must end with .html or .pdf" 1>&2
+  exit 2
 fi
 
 detect_env() {
@@ -43,4 +54,4 @@ detect_env() {
 
 OS=`detect_env`
 
-mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp     pdfName=$2"
+mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false useLastCSV=true videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp $OUTPUT_NAME"
