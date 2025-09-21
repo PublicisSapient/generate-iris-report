@@ -7,6 +7,10 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.util.Base64;
+import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,6 +33,7 @@ import com.opencsv.CSVReader;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 public class App {
+
     private static final String bodyFontName = "OpenSans-VariableFont_wdth,wght.ttf";
     private static final String codeFontName = "SourceCodePro-VariableFont_wght.ttf";
     private static File bodyFontFile = new File(bodyFontName);
@@ -42,6 +47,8 @@ public class App {
     static String irisPath = "";
     static String videoPath = "";
     static String pdfPath = "";
+    static String htmlPath = "";
+    static boolean useLastCSV = false;
     static GraphData graphData;
     static String graphImage = "";
     static int index = 0, lumIndex = 0, redIndex = 0, patternIndex = 0, timeStampIndex = 0, avLumIndex = 0,
@@ -54,8 +61,10 @@ public class App {
         if (useGui) {
             gui = new GUI(() -> generateReportAction(), irisPath, videoPath, pdfPath);
         } else {
-            if (Errors.checkCLErrors(irisPath, videoPath, pdfPath)) {
-                generateReport();
+            if (Errors.checkCLErrors(irisPath, videoPath, pdfPath, htmlPath)) {
+                if (checkCliArgs()) {
+                    generateReport();
+                }
             } else {
 
             }
@@ -70,7 +79,7 @@ public class App {
             pdfPath = gui.getPDFFileText();
             videoPath = gui.getVideoFileText();
 
-            if (Errors.checkGUIErrors(irisPath, videoPath, pdfPath, gui)) {
+            if (Errors.checkGUIErrors(irisPath, videoPath, pdfPath, htmlPath, gui)) {
                 gui.resetWithVals(irisPath, videoPath, pdfPath);
                 return;
             }
@@ -102,6 +111,12 @@ public class App {
                 case "pdfName":
                     pdfPath = arg.substring(arg.indexOf("=") + 1, arg.length());
                     break;
+                case "htmlName":
+                    htmlPath = arg.substring(arg.indexOf("=") + 1, arg.length());
+                    break;
+                case "useLastCSV":
+                    useLastCSV = Boolean.parseBoolean(arg.substring(arg.indexOf("=") + 1, arg.length()));
+                    break;
                 default:
                     System.out.println(
                             "Unrecognized arg: " + arg.substring(0, arg.indexOf("=")) + ". Ignoring this arg.");
@@ -109,7 +124,7 @@ public class App {
             }
         }
 
-        if (!useGui && (pdfPath.isEmpty() || irisPath.isEmpty() || videoPath.isEmpty())) {
+        if (!useGui && (irisPath.isEmpty() || videoPath.isEmpty() || (pdfPath.isEmpty() && htmlPath.isEmpty()))) {
             getArgsNoGui();
         }
     }
@@ -132,8 +147,30 @@ public class App {
             pdfPath = scanner.nextLine();
         }
 
+        if (pdfPath.isEmpty() && htmlPath.isEmpty()) {
+            System.out.println("Enter file to save PDF (leave blank if you only want HTML):");
+            pdfPath = scanner.nextLine();
+            if (pdfPath.isEmpty()) {
+                System.out.println("Enter file to save HTML:");
+                htmlPath = scanner.nextLine();
+            }
+        }
+
         scanner.close();
 
+    }
+
+    private static boolean checkCliArgs() {
+        boolean ok = Errors.checkEmptyAndExists(irisPath, "IRIS file")
+                && (useLastCSV || Errors.checkEmptyAndExists(videoPath, "video file"));
+        if (!ok) {
+            return false;
+        }
+        if (pdfPath.isEmpty() && htmlPath.isEmpty()) {
+            System.out.println("You must provide at least one output: pdfName or htmlName");
+            return false;
+        }
+        return true;
     }
 
     private static void generateReport() {
@@ -141,6 +178,7 @@ public class App {
         String irisPathOnly = Paths.get(irisPath).getParent().toString();
 
         String videoName = "";
+        String html;
 
         try {
             videoName = copyVideoToIris(videoPath, irisPathOnly);
@@ -154,13 +192,15 @@ public class App {
             System.out.println("Running IRIS on video file");
         }
 
-        try {
-        runIRIS(irisPathOnly, irisPath.substring(irisPath.lastIndexOf("/") + 1,
-        irisPath.length()));
-        } catch (IOException | InterruptedException e) {
-        showError("There was an error running the IRIS program");
-        e.printStackTrace();
-        return;
+        if (!useLastCSV) {
+            try {
+                runIRIS(irisPathOnly, irisPath.substring(irisPath.lastIndexOf("/") + 1,
+                        irisPath.length()));
+            } catch (IOException | InterruptedException e) {
+                showError("There was an error running the IRIS program");
+                e.printStackTrace();
+                return;
+            }
         }
 
         try {
@@ -196,27 +236,72 @@ public class App {
 
         setFirstPageData(videoName);
 
-        if (!useGui) {
-            System.out.println("Generating PDF");
+        boolean wantHtml = (htmlPath != null && !htmlPath.isEmpty());
+        boolean wantPdf = (pdfPath != null && !pdfPath.isEmpty());
+        if (wantHtml && !useGui) {
+            System.out.println("Generating HTML");
         }
 
-        try {
-            generatePDF(getHTMLFromTemplate());
-        } catch (IOException e) {
-            showError("There was an issue generating the PDF.");
-            e.printStackTrace();
-            return;
+        String htmlForPdf  = null;
+        String htmlForHtml = null;
+
+        if (wantPdf) {
+            htmlForPdf = getHTMLFromTemplate(false);           // keep file: URLs for PDF
+        }
+
+        if (wantHtml) {
+            // Temporarily inline row images, render template, then restore
+            var backups = inlineRowImagesForHtml();
+            try {
+                htmlForHtml = getHTMLFromTemplate(true);       // data: URLs for HTML
+            } finally {
+                restoreRowImages(backups);
+            }
+        }
+
+
+        if (wantHtml) {
+            try {
+                generateHTML(htmlForHtml);
+            } catch (IOException e) {
+                showError("There was an issue generating the HTML file.");
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        if (wantPdf && !useGui) {
+            System.out.println("Generating PDF");
+        }
+        if (wantPdf) {
+            try {
+                generatePDF(htmlForPdf);
+            } catch (IOException e) {
+                showError("There was an issue generating the PDF file.");
+                e.printStackTrace();
+                return;
+            }
         }
 
         snapshotter.stop();
 
         if (!useGui) {
-            System.out.println("Report generated! Find report at " + pdfPath);
-        } else {
+            if (wantPdf) {
+                System.out.println("PDF report:  " + pdfPath);
+            }
+            if (wantHtml) {
+                System.out.println("HTML report: " + htmlPath);
+            }
+        } else if (wantPdf) {
             gui.showSuccess(pdfPath);
         }
 
-        openFile(pdfPath);
+        // Try to open something helpful
+        if (wantPdf) {
+            openFile(pdfPath);
+        } else if (wantHtml) {
+            openFile(htmlPath);
+        }
     }
 
     private static void showError(String message) {
@@ -442,7 +527,7 @@ public class App {
         reportData.put("patternFailures", "" + patternFailures);
     }
 
-    private static String getHTMLFromTemplate() {
+    private static String getHTMLFromTemplate(boolean inlineImages) {
         if (!useGui) {
             System.out.println("Formatting IRIS report");
         }
@@ -460,14 +545,43 @@ public class App {
         }
         context.setVariable("defects", defects);
         context.setVariable("imageWidth", snapshotter.getImageWidth());
-        String s = "file:///" + System.getProperty("user.dir").replaceAll(" ", "%20") + "/image.png";
-        context.setVariable("graph", Paths.get(s).normalize().toString());
+        
+        // Tell the template which “mode” we’re rendering
+        context.setVariable("docClass", inlineImages ? "isWebPage" : "isPDF");
+
+        Path graphPng = Paths.get(System.getProperty("user.dir"), "image.png");
+        if (inlineImages) {
+            try {
+                context.setVariable("graph", fileToDataUri(graphPng, "image/png"));
+            } catch (IOException e) {
+                // If inlining fails, fall back to file URL
+                String s = "file:///" + System.getProperty("user.dir").replaceAll(" ", "%20") + "/image.png";
+                context.setVariable("graph", Paths.get(s).normalize().toString());
+            }
+        } else {
+            String s = "file:///" + System.getProperty("user.dir").replaceAll(" ", "%20") + "/image.png";
+            context.setVariable("graph", Paths.get(s).normalize().toString());
+        }
         context.setVariable(bodyFontName, context);
 
         TemplateEngine templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);
 
         return templateEngine.process("template", context);
+    }
+
+    private static void generateHTML(String html) throws IOException {
+        Path out = Paths.get(htmlPath).toAbsolutePath();
+        Files.createDirectories(out.getParent());
+        Files.writeString(out, html, StandardCharsets.UTF_8);
+        // copy webfonts next to the HTML so browsers can load them
+        writeFontsAlongsideHTML(out.getParent());
+    }
+
+    private static void writeFontsAlongsideHTML(Path dir) throws IOException {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        copyInputStreamToFile(cl.getResourceAsStream(bodyFontName), dir.resolve(bodyFontName).toFile());
+        copyInputStreamToFile(cl.getResourceAsStream(codeFontName), dir.resolve(codeFontName).toFile());
     }
 
     private static void generatePDF(String html) throws IOException, FileNotFoundException {
@@ -527,4 +641,65 @@ public class App {
             }
         }
     }
+
+    private static String fileToDataUri(Path p, String mime) throws IOException {
+        byte[] bytes = Files.readAllBytes(p);
+        String b64 = Base64.getEncoder().encodeToString(bytes);
+        return "data:" + mime + ";base64," + b64;
+    }
+
+    private static Path decodeFileUrlToPath(String maybeFileUrl) {
+        try {
+            if (maybeFileUrl != null && maybeFileUrl.startsWith("file:")) {
+                return Paths.get(URI.create(maybeFileUrl));
+            }
+        } catch (IllegalArgumentException ignore) {
+        }
+        // fall back: treat as plain path in CWD
+        return Paths.get(maybeFileUrl);
+    }
+
+    /**
+     * Temporarily replace Row.image file URLs with data URLs. Returns a list of
+     * (Row, originalImage) to restore.
+     */
+    private static List<Object[]> inlineRowImagesForHtml() {
+        List<Object[]> backups = new ArrayList<>();
+        for (var defect : defects) {
+            for (var row : defect) {
+                try {
+                    // Rows without screenshots usually have null/empty image
+                    String img = row.getImage(); // Row has a getter (used by Thymeleaf as row.image)
+                    if (img == null || img.isBlank()) {
+                        continue;
+                    }
+                    Path p = decodeFileUrlToPath(img);
+                    if (p == null) {
+                        continue;
+                    }
+                    if (!Files.exists(p)) {
+                        continue;
+                    }
+                    String data = fileToDataUri(p, "image/png");
+                    backups.add(new Object[]{row, img});
+                    row.setImage(data, false);
+                } catch (Exception ignore) {
+                    // If any particular snapshot fails to inline, skip it.
+                }
+            }
+        }
+        return backups;
+    }
+
+    private static void restoreRowImages(List<Object[]> backups) {
+        for (Object[] pair : backups) {
+            Row r = (Row) pair[0];
+            String original = (String) pair[1];
+            try {
+                r.setImage(original, false);
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
 }

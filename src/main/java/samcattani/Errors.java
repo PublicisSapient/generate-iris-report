@@ -3,12 +3,13 @@ package samcattani;
 import java.io.File;
 
 public class Errors {
-    static boolean checkGUIErrors(String irisFile, String videoFile, String pdfFile, GUI gui) {
-        return checkEmptyAndExists(irisFile, "IRIS file", gui) && checkEmptyAndExists(videoFile, "video file", gui) && checkEmpty(pdfFile, "PDF Name", gui);
+
+    static boolean checkGUIErrors(String irisFile, String videoFile, String pdfFile, String htmlFile, GUI gui) {
+        return checkEmptyAndExists(irisFile, "IRIS file", gui) && checkEmptyAndExists(videoFile, "video file", gui) && (checkEmpty(pdfFile, "PDF Name", gui) || checkEmpty(htmlFile, "HTML Name", gui));
     }
 
-    static boolean checkCLErrors(String irisFile, String videoFile, String pdfFile) {
-        return checkEmptyAndExists(irisFile, "IRIS file") && checkEmptyAndExists(videoFile, "video file") && checkEmpty(pdfFile, "PDF Name");
+    static boolean checkCLErrors(String irisFile, String videoFile, String pdfFile, String htmlFile) {
+        return checkEmptyAndExists(irisFile, "IRIS file") && checkEmptyAndExists(videoFile, "video file") && (checkEmpty(pdfFile, "PDF Name") || checkEmpty(htmlFile, "HTML Name"));
     }
 
     static boolean checkEmptyAndExists(String s, String fieldName) {
@@ -25,7 +26,7 @@ public class Errors {
 
     static boolean checkEmpty(String s, String fieldName) {
         if (s.isEmpty()) {
-            System.out.println("You must provide value for " + fieldName);
+            System.out.println("There is no value for " + fieldName);
             return false;
         }
 
