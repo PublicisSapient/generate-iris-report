@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>samcattani</groupId>
-  <artifactId>accessible-pdf-generator-cl</artifactId>
+  <artifactId>generate-iris-report</artifactId>
   <version>1.1</version>
 
 
-  <name>accessible-pdf-generator-cl</name>
+  <name>generate-iris-report</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 

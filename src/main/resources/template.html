@@ -3,12 +3,11 @@
 
 <head>
   <title>IRIS-Test-Results.pdf</title>
-  <meta name="subject" content="IRIS-Test-Results.pdf">
-  </meta>
-  <meta name="description" content="IRIS-Test-Results.pdf">
-  </meta>
-  <meta name="author" content="Auto Generated IRIS Report">
-  </meta>
+  <meta name="subject" content="IRIS-Test-Results.pdf" />
+  <meta name="description" content="IRIS-Test-Results.pdf" />
+  <meta name="author" content="Auto Generated IRIS Report" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+
   <style th:inline="css">
     body {
       font-family: 'BodyFont';
@@ -227,23 +226,44 @@
       padding-top: 20px;
       padding-left: 10px;
     }
+
+    div.pg-two {
+      text-align: center;
+    }
+
+    /* HTML report specific styles */
+    body.isWebPage {
+      max-width: 1024px;
+      margin: 0px auto;
+      padding: 0 10px;
+      font-family: "Hevetica", "Arial", sans-serif;
+    }
+
+    body.isWebPage figcaption {
+      margin-top: 20px;
+    }
+
+    body.isWebPage .graph {
+      max-width: 100%;
+    }
+
   </style>
 </head>
 
-<body>
-  <div class='header'>
-    <p class="bold-text">Video clip file name: <span th:text="${videoName}">flashStripes.mp4</span></p>
-    <p class="bold-text">Analyzed on: <span th:text="${formattedDate}">Monday, March 17, 2025 at 1:39p.m.</span></p>
+<body th:class="${docClass}">
+  <div class='header' th:if="${docClass} == 'isPDF'">
+    <p class="bold-text">Video clip file name: <span th:text="${videoName}">Unknown</span></p>
+    <p class="bold-text">Analyzed on: <span th:text="${formattedDate}">Unknown</span></p>
   </div> 
   <!-- <div class='footer'>Footer</div> -->
   <div class="pg-one">
     <div class="top-report-info">
       <h1 class="page-header">IRIS Test Results</h1>
-      <div class="spacer" />
+      <div class="spacer"></div>
       <p class="page-sub-header">Results of analysis for compliance with Guideline 2.3 of the Web Compliance
         Accessibility Guidelines (WCAG) 2.0</p>
-      <div class="spacer" />
-      <div class="spacer" />
+      <div class="spacer"></div>
+      <div class="spacer"></div>
       <div class="info-box-container">
         <div class="bolded-info-flex-box">
           <p class="bold-text">Video clip file name:</p>
@@ -270,11 +290,11 @@
           <!--  th:text="${patternFailures + ' frames'}">0 frames</p> -->
         </div>
       </div>
-      <div class="spacer" />
-      <div class="spacer" />
+      <div class="spacer"></div>
+      <div class="spacer"></div>
       <p class="page-sub-header">Source material should be re-analyzed in its entirety for compliance if any
         changes are made. </p>
-      <div class="spacer" />
+      <div class="spacer"></div>
       <p class="smaller-text">Warnings were included in the calculation of defects for this report.</p>
       <p class="smaller-text" th:if="${failed} == 'Failed' or ${failed} == 'Warning'">Each of the following defect tables lists the analysis results for a single block of
         consecutive failed or failed / warning frames.</p>
@@ -285,12 +305,13 @@
     </div>
   </div>
 
-  <div class="page-break"/>
+  <div class="page-break"></div>
 
+  <div class="pg-two">
   <p class="bold-text">Graph of Luminance Average Difference Accumulation and Flash Area, Red Average Difference Accumulation and Flash Area</p>
-  <div class="spacer" />
-  <img th:src="${graph}" alt="Graph of Luminance Average Difference Accumulation and Flash Area, Red Average Difference Accumulation and Flash Area" />
-  <div class="spacer" />
+  <div class="spacer"></div>
+  <img class="graph" th:src="${graph}" alt="Graph showing lumiance and red flash analysis.  This data is presented in a screen reader friendly format in the following pages of this report." />
+  <div class="spacer"></div>
   <p class="smaller-text-left">
     This graph displays the average difference accumulation lumiance and red values multiplied by the flash area 
     of each frame throughout the video tested. Together these values determine whether the frames are failing or passing.
@@ -311,6 +332,7 @@
     - The red flash area the area proportion of the red change between this frame and the one before, which is calculated
     as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
   </p>
+</div>
 
   <div class="page-break" th:if="${failed} == 'Failed' or ${failed} == 'Warning'"/>
 
@@ -320,15 +342,15 @@
     </figcaption>
 
 
-    <!-- <div class="spacer" /> -->
+    <!-- <div class="spacer"></div> -->
     <table aria-label="defect-table-caption-1" 
       th:class="${defect.size == 44 ? 'defect-table-special' : 'defect-table'}" 
       th:attr="id=${defect.size == 44 ? 'defect-table-special' : 'defect-table'}">
       <thead>
         <tr>
           <th>Timecode</th>
-          <th>Lum</th>
-          <th>Red</th>
+          <th>Luminance Flash Issues</th>
+          <th>Red Flash Issues</th>
           <!-- /* <th>Pattern</th> */-->
           <th class="img-row">Image</th>
         </tr>
@@ -341,10 +363,10 @@
         <!-- <td th:text="${row.patternFrameResult}">Pattern</td> -->
         <td th:if="${row.hasExtraRow}"></td>
         <td th:if="${row.hasScreenshot && stats2.index % 44 == 0}" rowspan="4" class="img-row-border-above">
-          <img class="defect-image" th:src="${row.image}" alt="Image of defect" />
+          <img class="defect-image" th:src="${row.image}" alt="Snapshot of video at ${row.formattedTimeStamp}" />
         </td>
         <td th:if="${row.hasScreenshot && stats2.index % 44 != 0}" rowspan="4" class="img-row">
-          <img class="defect-image" th:src="${row.image}" alt="Image of defect" />
+          <img class="defect-image" th:src="${row.image}" alt="Snapshot of video at ${row.formattedTimeStamp}" />
         </td>
       </tr>
     </table>
