@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$#" -ne "2" -a "$#" -ne "3" ]
+if [ "$#" -lt "2" ]
 then
     echo "Usage: $(basename "$0") <input-video> (<output-pdf>|<output-html)" 1>&2
     exit 1
@@ -54,5 +54,21 @@ detect_env() {
 
 OS=`detect_env`
 
+VIDEO_NAME="$1"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+source $SCRIPT_DIR/reencode-to-integer-fps.sh $VIDEO_NAME
+
+echo "Done"
+
+if [ "$VIDEO_NAME" = "$out" ]
+then
+  echo "No re-encoding needed"
+else
+  echo "Reencoded video name: $out"
+  VIDEO_NAME="$out"
+fi
+
+
 # mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false $3 useLastCSV=true videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp $OUTPUT_NAME"
-mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false $3 videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp $OUTPUT_NAME"
+mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false ${@:3} videoPath=$VIDEO_NAME irisPath=../IRIS/bin/build/$OS-release/example/IrisApp $OUTPUT_NAME"

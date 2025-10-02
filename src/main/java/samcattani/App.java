@@ -217,6 +217,8 @@ public class App {
             }
         }
 
+        System.out.println("IRIS run completed. Grabbing snapshots");
+
         try {
             snapshotter = new Snapshotter((Paths.get(irisPathOnly, "TestVideos", videoName)).toString());
         } catch (org.bytedeco.javacv.FFmpegFrameGrabber.Exception e) {
@@ -330,6 +332,8 @@ public class App {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(irisPath));
         processBuilder.command("./" + irisFileExName);
+        System.out.println("Running IRIS Command: " + irisFileExName);
+        System.out.println("IRIS Path: " + irisPath);
         Process p = processBuilder.start();
         p.waitFor();
     }
