@@ -38,4 +38,5 @@ OS=`detect_env`
 export DISPLAY="localhost:0.0"
 # export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
-mvn exec:java -Djava.awt.headless=false -Dexec.args="useGui=true videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp     pdfName=$2"
+# Remember, you can use useLastCSV=true in command to just have it read the json file.
+mvn exec:java -Djava.awt.headless=false -Dexec.args="useGui=true videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp pdfName=$2 ${@:3}"

@@ -55,6 +55,38 @@ public class Snapshotter {
         if (converter != null) converter.close();
     }
 
+    private static BufferedImage scaleToWidth(BufferedImage src, int targetW) {
+        if (src == null) return null;
+        int srcW = src.getWidth();
+        int srcH = src.getHeight();
+        if (srcW <= 0 || srcH <= 0) return src;
+
+        if (srcW == targetW) return src; // nothing to do
+
+        double scale = targetW / (double) srcW;
+        int targetH = Math.max(1, (int) Math.round(srcH * scale));
+
+        // Use a compatible type; fall back to ARGB if unknown
+        int type = src.getType();
+        if (type == BufferedImage.TYPE_CUSTOM) {
+            type = BufferedImage.TYPE_INT_ARGB;
+        }
+
+        BufferedImage dst = new BufferedImage(targetW, targetH, type);
+        java.awt.Graphics2D g2 = dst.createGraphics();
+        // Good quality scaling
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+                            java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
+                            java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                            java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2.drawImage(src, 0, 0, targetW, targetH, null);
+        g2.dispose();
+        return dst;
+    }
+
     String grabImage(String timeStamp) {
         // Parse HH:MM:SS[.fraction] to microseconds and seek by timestamp
         long micros = parseTimestampToMicros(timeStamp);
@@ -71,8 +103,9 @@ public class Snapshotter {
             BufferedImage bi = converter.convert(frame);
             try {
                 String safeStamp = sanitizeForWindows(timeStamp);
-                Path out = outputDir.resolve("img" + safeStamp + ".png");
-                ImageIO.write(bi, "png", out.toFile());
+                Path out = outputDir.resolve("img" + safeStamp + ".jpg");
+                BufferedImage scaled = scaleToWidth(bi, 300);
+                ImageIO.write(scaled, "jpg", out.toFile());
 
                 // compute width once based on first grabbed frame, preserving your logic
                 if (imageWidth == 142) {

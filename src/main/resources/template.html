@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
-  <title>IRIS-Test-Results.pdf</title>
+  <title th:text="|IRIS Test Results for ${videoName}|">IRIS Test Results</title>
   <meta name="subject" content="IRIS-Test-Results.pdf" />
   <meta name="description" content="IRIS-Test-Results.pdf" />
   <meta name="author" content="Auto Generated IRIS Report" />
@@ -12,6 +12,17 @@
     body {
       font-family: 'BodyFont';
       font-size: 14px;
+    }
+
+    .sr-only {
+      clip: rect(1px, 1px, 1px, 1px);
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+      margin: -1px;
     }
 
     .bold-text {
@@ -54,6 +65,10 @@
       font-weight: 900;
     }
 
+    body.isWebPage .page-header {
+      padding-top: 0;
+    }
+
     .page-sub-header {
       font-weight: 900;
       width: 70%;
@@ -84,10 +99,22 @@
       line-height: 20px;
     }
 
-    tr:nth-child(6n),
-    tr:nth-child(6n-1),
-    tr:nth-child(6n-2) {
+    table.defect-table tbody tr:nth-child(8n+1),
+    table.defect-table tbody tr:nth-child(8n+2),
+    table.defect-table tbody tr:nth-child(8n+3),
+    table.defect-table tbody tr:nth-child(8n+4) {
       background: #DFE3F5;
+    }
+
+    body.isPDF table.defect-table tr:nth-child(8n+2),
+    body.isPDF table.defect-table tr:nth-child(8n+3),
+    body.isPDF table.defect-table tr:nth-child(8n+4),
+    body.isPDF table.defect-table tr:nth-child(8n+5) {
+      background: #DFE3F5;
+    }
+
+    table tbody tr {
+      background: #fff;
     }
 
     /* .table {
@@ -96,6 +123,13 @@
 
     .page-break {
       page-break-before: always;
+    }
+
+
+    body.isWebPage .page-break {
+      border-top: solid 1px black;
+      width: 50%;
+      margin: 40px auto;
     }
 
     .defect-image {
@@ -173,22 +207,30 @@
       height: 20px;
     }
    
-    tr:nth-child(44n+1) {
+    tr:nth-child(20n+1) {
         page-break-after: always;
         height: 20px;
     }
 
-    tr:nth-child(44n+1) {
+    tr:nth-child(20n+1) {
         page-break-after: always;
     }
 
-    #defect-table-special tr:nth-child(44n+1) {
+    .defect-table-special tr:nth-child(20n+1) {
         page-break-after:avoid;
     }
 
-    tr:nth-child(44n+1) td {
-        border-bottom: 1px solid #000;
+    .isWebPage .defect-table-special tr:nth-child(20n+1) {
+      border-bottom: 1px solid #000;
+    }
+
+    tr:nth-child(20n+1) td {
+       
         height: 20px;
+    }
+
+    tr:nth-child(1) td {
+      border-bottom: none;
     }
 
     .img-row-no-border {
@@ -247,6 +289,47 @@
       max-width: 100%;
     }
 
+
+    table.info-dl {
+      border: none;
+      margin-top: -30px;
+    }
+
+    table.info-dl thead,
+    table.info-dl thead th
+     {
+      height: 1px;
+      overflow: hidden;
+      font-size: 1px;
+    }
+
+    table.info-dl th,
+    table.info-dl td {
+      width: 50%;
+      padding: 5px;
+    }
+
+    table.info-dl th,
+    table.info-dl td,
+    table.info-dl tr {
+      border: none;
+      background: none; 
+    }
+
+    table.info-dl tbody th {
+      text-align: right;
+    }
+
+    table.info-dl tbody td {
+      text-align: left;
+    }
+
+    ul li {
+      text-align: left;
+      font-size: 12px;
+    }
+
+
   </style>
 </head>
 
@@ -262,34 +345,70 @@
       <div class="spacer"></div>
       <p class="page-sub-header">Results of analysis for compliance with Guideline 2.3 of the Web Compliance
         Accessibility Guidelines (WCAG) 2.0</p>
-      <div class="spacer"></div>
-      <div class="spacer"></div>
-      <div class="info-box-container">
-        <div class="bolded-info-flex-box">
-          <p class="bold-text">Video clip file name:</p>
-          <p class="bold-text">Frame rate:</p>
-          <p class="bold-text">Length of material:</p>
-          <p class="bold-text">Total frames:</p>
-          <p class="bold-text">Analyzed on:</p>
-          <p> </p>
-          <p class="bold-text">Result status:</p>
-          <p class="bold-text">Luminance flash failures:</p>
-          <p class="bold-text">Red flash failures:</p>
-          <!-- <p class="bold-text">Pattern failures:</p> -->
-        </div>
-        <div class="other-info-flex-box">
-          <p th:text="${videoName}">flashStripes.mp4</p>
-          <p th:text="${framesPerSec + 'fps'}">25fps</p>
-          <p th:text="${time}">00:00:1.44</p>
-          <p th:text="${totalFrames}">36</p>
-          <p th:text="${formattedDate}">Monday, March 17, 2025 at 1:39p.m.</p>
-          <p> </p>
-          <p th:text="${failed}">Failed</p>
-          <p th:text="${lumFailures + ' frames'}">32 frames</p>
-          <p th:text="${redFailures + ' frames'}">0 frames</p>
-          <!--  th:text="${patternFailures + ' frames'}">0 frames</p> -->
-        </div>
-      </div>
+     
+      <h2 id="video-meta-heading" class="visually-hidden">Video metadata</h2>
+
+      <table class="info-dl" aria-labelledby="video-meta-heading">
+        <thead >
+          <tr>
+            <th class="sr-only" scope="col">Name</th>
+            <th class="sr-only" scope="col">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Video clip file name:</th>
+            <td th:text="${videoName}">flashStripes.mp4</td>
+          </tr>
+          <tr>
+            <th scope="row">Frame rate:</th>
+            <td th:text="${framesPerSec + 'fps'}">25fps</td>
+          </tr>
+          <tr>
+            <th scope="row">Length of material:</th>
+            <td th:text="${time}">00:00:1.24</td>
+          </tr>
+          <tr>
+            <th scope="row">Total frames:</th>
+            <td th:text="${totalFrames}">36</td>
+          </tr>
+          <tr>
+            <th scope="row">Analyzed on:</th>
+            <td>
+              <!-- Optional: machine-readable time -->
+              <time th:datetime="${isoDate}" th:text="${formattedDate}">Monday, March 17, 2025 at 1:39 p.m.</time>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+      
+        <h2 id="results-heading" >Results</h2>
+        <table class="info-dl" aria-labelledby="results-heading">
+          <thead >
+            <tr>
+              <th class="sr-only" scope="col">Test</th>
+              <th class="sr-only" scope="col">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+            <tr><th scope="row">Result status:</th>
+            <td th:text="${failed}">Failed</td></tr>
+
+            <tr><th scope="row">Luminance flash failures:</th>
+            <td th:text="${lumFailures + ' frames'}">32 frames</td></tr>
+
+            <tr><th scope="row">Red flash failures:</th>
+            <td th:text="${redFailures + ' frames'}">0 frames</td></tr>
+
+            <!-- If you later re-enable pattern failures:
+            <tr><th scope="row">Pattern failures:</th>
+            <td th:text="${patternFailures + ' frames'}">0 frames</td></tr>
+            -->
+        </tbody>
+        </table>
       <div class="spacer"></div>
       <div class="spacer"></div>
       <p class="page-sub-header">Source material should be re-analyzed in its entirety for compliance if any
@@ -300,6 +419,7 @@
         consecutive failed or failed / warning frames.</p>
       <p class="smaller-text" th:if="${failed} == 'Failed' or ${failed} == 'Warning'">For Luminance Flash (Lum) and Red Flash (Red) timestamps
         are marked with '-' for which indicates a Pass, 'Warning', 'Failure', and 'Extended Failure'.</p>
+      <p class="smaller-text">Screenshots in this report do not show every frame of the defects described.</p>
       <p class="smaller-text">This output report is for informational purposes only and should not be used as
         certification or validation of compliance with any legal, regulatory or other requirements</p>
     </div>
@@ -308,44 +428,55 @@
   <div class="page-break"></div>
 
   <div class="pg-two">
-  <p class="bold-text">Graph of Luminance Average Difference Accumulation and Flash Area, Red Average Difference Accumulation and Flash Area</p>
-  <div class="spacer"></div>
+  <h2 >Graph of Luminance and Red Difference Accumulation and Flashes</h2>
+  
   <img class="graph" th:src="${graph}" alt="Graph showing lumiance and red flash analysis.  This data is presented in a screen reader friendly format in the following pages of this report." />
   <div class="spacer"></div>
-  <p class="smaller-text-left">
-    This graph displays the average difference accumulation lumiance and red values multiplied by the flash area 
+ 
+    <p>This graph displays the average difference accumulation lumiance and red values multiplied by the flash area 
     of each frame throughout the video tested. Together these values determine whether the frames are failing or passing.
-    An explanation for the values used in the calculation of this graph are below.
-    <br/><br/>
+    An explanation for the values used in the calculation of this graph are below.</p>
+    
+    <p class="smaller-text-left">
     When spikes in graph are higher and closer together there is likely to be an issue that is a failure or warning.
-    <br/><br/>
-    - Luminance average difference accumulation is used to determine whether a new luminance transition has occurred or not. 
-    If it’s equal or greater than 0.1 (absolute value) a new transition would have occurred.
-    <br/>
-    - Average Red Difference Accumulation is the value used to determine whether a new red transition has occurred or not. 
-    If it’s equal or greater than 20 (absolute value), a new transition would have occurred.  
-    The red value is divided by 200 in order to be on the same scale as luminance.
-    <br/>
-    - The luminance flash area the area proportion of the luminance change between this frame and the one before, which is
-    calculated as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
-    <br/>
-    - The red flash area the area proportion of the red change between this frame and the one before, which is calculated
-    as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
-  </p>
-</div>
+    </p>
 
-  <div class="page-break" th:if="${failed} == 'Failed' or ${failed} == 'Warning'"/>
+    <ul >
+      <li>
+      Luminance average difference accumulation is used to determine whether a new luminance transition has occurred or not. 
+      If it’s equal or greater than 0.1 (absolute value) a new transition would have occurred.
+      </li>
+
+      <li>
+      Average Red Difference Accumulation is the value used to determine whether a new red transition has occurred or not. 
+      If it’s equal or greater than 20 (absolute value), a new transition would have occurred.  
+      The red value is divided by 200 in order to be on the same scale as luminance.
+      </li>
+
+      <li>
+      The luminance flash area the area proportion of the luminance change between this frame and the one before, which is
+      calculated as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
+      </li>
+
+      <li>
+      The red flash area the area proportion of the red change between this frame and the one before, which is calculated
+      as a percentage of the whole screen. We use the decimal value of this for the graph calculations.
+      </li>
+    </ul>
+  </div>
+
+  <div class="page-break" th:if="${failed} == 'Failed' or ${failed} == 'Warning'"></div>
 
   <div th:each="defect, stats : ${defects}">
-    <figcaption id="defect-table-caption-1">
-      <p class="bold-text" th:text="${'Defect ' + stats.count + ' of ' + stats.size}">Defect 1 of 1</p>
+    <figcaption th:id="|defect-table-caption-${stats.count}|">
+      <h2 class="bold-text" th:text="${'Defect ' + stats.count + ' of ' + stats.size}">Defect 1 of 1</h2>
     </figcaption>
 
 
     <!-- <div class="spacer"></div> -->
-    <table aria-label="defect-table-caption-1" 
-      th:class="${defect.size == 44 ? 'defect-table-special' : 'defect-table'}" 
-      th:attr="id=${defect.size == 44 ? 'defect-table-special' : 'defect-table'}">
+    <table 
+      th:aria-labelledby="|defect-table-caption-${stats.count}|" 
+      th:class="|defect-table ${defect.size == 20 ? 'defect-table-special' : ''}|" >
       <thead>
         <tr>
           <th>Timecode</th>
@@ -362,15 +493,18 @@
         <td th:text="${row.redFrameResult}">Red</td>
         <!-- <td th:text="${row.patternFrameResult}">Pattern</td> -->
         <td th:if="${row.hasExtraRow}"></td>
-        <td th:if="${row.hasScreenshot && stats2.index % 44 == 0}" rowspan="4" class="img-row-border-above">
-          <img class="defect-image" th:src="${row.image}" alt="Snapshot of video at ${row.formattedTimeStamp}" />
+        <td th:if="${row.hasScreenshot && stats2.index % 20 == 0}" class="img-row-border-above">
+          <img class="defect-image" th:src="${row.image}" alt="" th:alt="|Snapshot of video at ${row.formattedTimeStamp}|" />
         </td>
-        <td th:if="${row.hasScreenshot && stats2.index % 44 != 0}" rowspan="4" class="img-row">
-          <img class="defect-image" th:src="${row.image}" alt="Snapshot of video at ${row.formattedTimeStamp}" />
+        <td th:if="${row.hasScreenshot && stats2.index % 20 != 0}" class="img-row">
+          <img class="defect-image" th:src="${row.image}" alt="" th:alt="|Snapshot of video at ${row.formattedTimeStamp}|" />
+        </td>
+        <td th:if="${!row.hasScreenshot}" >
+           <span class="sr-only">Similar to previous screenshot</span>
         </td>
       </tr>
     </table>
-    <div th:if="${stats.index != stats.size - 1}" class="page-break" />
+    <div th:if="${stats.index != stats.size - 1}" class="page-break"></div>
   </div>
 </body>
 

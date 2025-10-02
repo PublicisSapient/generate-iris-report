@@ -54,4 +54,5 @@ detect_env() {
 
 OS=`detect_env`
 
+# mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false $3 useLastCSV=true videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp $OUTPUT_NAME"
 mvn -Djava.awt.headless=true exec:java -Dexec.args="useGui=false $3 videoPath=$1 irisPath=../IRIS/bin/build/$OS-release/example/IrisApp $OUTPUT_NAME"

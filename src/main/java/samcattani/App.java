@@ -40,6 +40,7 @@ public class App {
     private static File codeFontFile = new File(codeFontName);
     private static GUI gui;
     private static int lumFailures = 0, patternFailures = 0, redFailures = 0, lumWarnings = 0, redWarnings = 0;
+    static int screenshotEvery = 1;  // default: take a screenshot on every row
     static ArrayList<ArrayList<Row>> defects;
     static HashMap<String, String> reportData = new HashMap<>();
     static Snapshotter snapshotter;
@@ -98,28 +99,41 @@ public class App {
             if (!arg.contains("=")) {
                 continue;
             }
-            switch (arg.substring(0, arg.indexOf("="))) {
+            int eq = arg.indexOf('=');
+            if (eq <= 0) continue;
+            String key = arg.substring(0, eq).trim();
+            String val = arg.substring(eq + 1).trim();
+
+            switch (key) {
                 case "useGui":
-                    useGui = Boolean.parseBoolean(arg.substring(arg.indexOf("=") + 1, arg.length()));
+                    useGui = Boolean.parseBoolean(val);
                     break;
                 case "videoPath":
-                    videoPath = arg.substring(arg.indexOf("=") + 1, arg.length());
+                    videoPath = val;
                     break;
                 case "irisPath":
-                    irisPath = arg.substring(arg.indexOf("=") + 1, arg.length());
+                    irisPath = val;
                     break;
                 case "pdfName":
-                    pdfPath = arg.substring(arg.indexOf("=") + 1, arg.length());
+                    pdfPath = val;
                     break;
                 case "htmlName":
-                    htmlPath = arg.substring(arg.indexOf("=") + 1, arg.length());
+                    htmlPath = val;
                     break;
                 case "useLastCSV":
-                    useLastCSV = Boolean.parseBoolean(arg.substring(arg.indexOf("=") + 1, arg.length()));
+                    useLastCSV = Boolean.parseBoolean(val);
+                    break;
+                case "screenshotEvery":
+                    try {
+                        int n = Integer.parseInt(val);
+                        screenshotEvery = (n < 1) ? 1 : n; // guard: min 1
+                    } catch (NumberFormatException ignore) {
+                        screenshotEvery = 1;
+                    }
                     break;
                 default:
                     System.out.println(
-                            "Unrecognized arg: " + arg.substring(0, arg.indexOf("=")) + ". Ignoring this arg.");
+                            "Unrecognized arg: " + key + ". Ignoring this arg.");
                     break;
             }
         }
@@ -382,7 +396,7 @@ public class App {
 
                 if (!row.passes()) {
                     if (lastFailure) {
-                        if (rows.size() % 4 == 0) {
+                        if (rows.size() % screenshotEvery == 0) {
                             row.setImage(snapshotter.grabImage(row.timeStamp), false);
                         }
                         rows.add(row);
@@ -475,9 +489,9 @@ public class App {
         for (ArrayList<Row> defect : defects) {
             int numExtraRows = 0;
 
-            for (int i = 1; i <= 4; i++) {
+            for (int i = 1; i <= screenshotEvery; i++) {
                 if (defect.get(defect.size() - i).hasScreenshot) {
-                    numExtraRows = 4 - i;
+                    numExtraRows = screenshotEvery - i;
                     break;
                 }
             }
@@ -680,7 +694,7 @@ public class App {
                     if (!Files.exists(p)) {
                         continue;
                     }
-                    String data = fileToDataUri(p, "image/png");
+                    String data = fileToDataUri(p, "image/jpg");
                     backups.add(new Object[]{row, img});
                     row.setImage(data, false);
                 } catch (Exception ignore) {
