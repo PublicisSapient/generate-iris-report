@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Graph {
+    public enum Series { LUMINANCE, RED }
     private final GraphData graphData;
 
     private static final int GRAPH_WIDTH  = 700;
@@ -59,6 +60,7 @@ public final class Graph {
 
     /** Render the assembled panel to a PNG on disk (headless-safe). */
     public Path saveAsImage(Path outputPath) throws IOException {
+        GraphImage panel = new GraphImage(graphData, series);
         BufferedImage bi = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bi.createGraphics();
         try {

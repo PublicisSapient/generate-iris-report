@@ -248,9 +248,9 @@ public class App {
         }
 
         synchronized (graphImage) {
-            // do some code here
             Graph g = new Graph(graphData);
-            graphImage = g.saveAsImage();
+            String lumPng = g.saveAsImage(Graph.Series.LUMINANCE);
+            String redPng = g.saveAsImage(Graph.Series.RED);
         }
 
         setFirstPageData(videoName);
@@ -595,7 +595,8 @@ public class App {
         Path graphPng = Paths.get(System.getProperty("user.dir"), "image.png");
         if (inlineImages) {
             try {
-                context.setVariable("graph", fileToDataUri(graphPng, "image/png"));
+                context.setVariable("graphLum", fileToDataUri(lumPng, "image/png"));
+                context.setVariable("graphRed", fileToDataUri(redPng, "image/png"));
             } catch (IOException e) {
                 // If inlining fails, fall back to file URL
                 String s = "file:///" + System.getProperty("user.dir").replaceAll(" ", "%20") + "/image.png";

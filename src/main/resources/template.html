@@ -424,7 +424,16 @@
   <div class="pg-two">
   <h2 >Graph of Luminance and Red Difference Accumulation and Flashes</h2>
   
-  <img class="graph" th:src="${graph}" alt="Graph showing lumiance and red flash analysis.  This data is presented in a screen reader friendly format in the following pages of this report." />
+  <h3>Luminance</h3>
+  <img class="graph"
+       th:src="${graphLum}"
+       alt="Graph showing average luminance difference accumulation times luminance flash area across the video." />
+  <div class="spacer"></div>
+
+  <h3>Red</h3>
+  <img class="graph"
+       th:src="${graphRed}"
+       alt="Graph showing average red difference accumulation times red flash area across the video." />
   <div class="spacer"></div>
  
     <p>This graph displays the average difference accumulation lumiance and red values multiplied by the flash area 
