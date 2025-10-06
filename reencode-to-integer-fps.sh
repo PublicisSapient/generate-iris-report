@@ -53,7 +53,7 @@ else
     # Decide: do we need to re-encode at all?
     if (( needs_av1_transcode == 0 && needs_fps_integerize == 0 )); then
         # No change needed; report back to caller
-    out="$in"
+        out="$in"
         return 0 2>/dev/null || exit 0
     fi
 
@@ -61,33 +61,54 @@ else
     base="${in%.*}"
     if [[ "$base" == "$in" ]]; then
         # no extension
-    out="${out:-${in}.cfr${target_fps}}"
+        out="${out:-${in}.cfr${target_fps}}"
     else
         ext="${in##*.}"
         out="${out:-${base}.cfr${target_fps}.${ext}}"
     fi
 
+    echo "OUT: is $out ."
+
     # ----- choose encoder -----
     # If we are here because of AV1, force H.264 (libx264). Otherwise,
     # your script already uses libx264 for fps changes, so keep that.
     venc="libx264"
+    aenc="copy"
 
     # Container nicety for mp4/mov
-    faststart=()
     ext_lc=$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')
+    faststart_flag=""
     case "$ext_lc" in
-    mp4|mov) faststart=(-movflags +faststart) ;;
-    *)       faststart=() ;;
+        webm)
+            # WebM requires VP8/VP9/AV1 + Vorbis/Opus. Use VP9+Opus.
+            venc="libvpx-vp9"
+            aenc="libopus"
+            ;;
+        mp4|mov) 
+            faststart_flag="-movflags +faststart" ;;
     esac
 
-    echo "Re-encoding: codec=$vcodec (AV1=$needs_av1_transcode), target_fps=${target_fps} → $out"
 
-    ffmpeg -y -i "$in" \
-        -vf "fps=${target_fps}" -r "${target_fps}" -vsync cfr \
-        -c:v "${venc}" -crf 18 -preset veryfast \
-        -c:a copy \
-        "${faststart[@]}" \
-        "$out"
+    echo "Re-encoding for container .$ext_lc → video=$venc, audio=$aenc, fps=${target_fps}"
+
+    # If you want slightly better VP9 speed/quality trade-offs:
+    vp9_tune=""
+    if [[ "$venc" == "libvpx-vp9" ]]; then
+        # CRF ~30 for similar size to H.264 CRF 18–22; adjust as you like
+        vp9_tune=" -b:v 0 -crf 30 -row-mt 1 -pix_fmt yuv420p "
+    fi
+    
+    COMMAND="ffmpeg -y -i $in \
+        -vf fps=${target_fps} -r ${target_fps} -vsync cfr \
+        -c:v $venc \
+        $vp9_tune \
+        -c:a $aenc \
+        -preset veryfast \
+        $faststart_flag $out
+    "
+
+    echo "Running: $COMMAND"
+    $COMMAND
 
     echo "Wrote: $out"
 fi

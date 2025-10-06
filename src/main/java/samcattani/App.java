@@ -20,6 +20,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Locale;
+import java.util.Arrays;
+import java.util.List;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -318,6 +321,10 @@ public class App {
         } else if (wantHtml) {
             openFile(htmlPath);
         }
+
+        // Remove the copied video from TestVideos
+        deleteCopiedVideoQuietly(irisPathOnly, videoName);
+
     }
 
     private static void showError(String message) {
@@ -357,6 +364,22 @@ public class App {
 
         // return just the filename; callers join it with TestVideos later
         return name;
+    }
+
+    private static void deleteCopiedVideoQuietly(String irisPathOnly, String videoName) {
+        if (videoName == null || videoName.isEmpty()) return;
+        try {
+            Path p = Paths.get(irisPathOnly, "TestVideos", videoName);
+            Files.deleteIfExists(p);
+            if (!useGui) {
+                System.out.println("Deleted copied video: " + p);
+            }
+        } catch (IOException e) {
+            // Non-fatal: warn and continue
+            if (!useGui) {
+                System.err.println("Warning: couldn't delete copied video: " + e.getMessage());
+            }
+        }
     }
 
     private static void setRows(String irisPath, String videoName, ArrayList<ArrayList<Row>> defects)
@@ -543,6 +566,7 @@ public class App {
         reportData.put("lumFailures", "" + lumFailures);
         reportData.put("redFailures", "" + redFailures);
         reportData.put("patternFailures", "" + patternFailures);
+        reportData.put("screenshotEvery", "" + screenshotEvery);
     }
 
     private static String getHTMLFromTemplate(boolean inlineImages) {
@@ -563,6 +587,7 @@ public class App {
         }
         context.setVariable("defects", defects);
         context.setVariable("imageWidth", snapshotter.getImageWidth());
+        context.setVariable("screenshotEvery", screenshotEvery);
         
         // Tell the template which “mode” we’re rendering
         context.setVariable("docClass", inlineImages ? "isWebPage" : "isPDF");
@@ -642,20 +667,63 @@ public class App {
         }
     }
 
-    private static void openFile(String pdfFileName) {
-        if (!Desktop.isDesktopSupported()) {
-            return;
-        }
+    private static void openFile(String pathStr) {
+        if (pathStr == null || pathStr.isEmpty()) return;
+        openFile(Paths.get(pathStr));
+    }
 
-        Desktop desktop = Desktop.getDesktop();
+    private static void openFile(Path path) {
+        if (path == null) return;
+        try {
+            if (!Files.exists(path)) {
+                if (!useGui) System.err.println("openFile: not found: " + path);
+                return;
+            }
 
-        // let's try to open PDF file
-        File file = new File(pdfFileName);
-        if (file.exists()) {
+            // 1) Try Desktop API first
             try {
-                desktop.open(file);
-            } catch (IOException e) {
-                e.printStackTrace();
+                if (Desktop.isDesktopSupported()) {
+                    Desktop d = Desktop.getDesktop();
+                    if (d.isSupported(Desktop.Action.OPEN)) {
+                        d.open(path.toFile());
+                        return;
+                    }
+                }
+            } catch (UnsupportedOperationException | IOException | SecurityException ignored) {
+                // fall through to OS-specific commands
+            }
+
+            // 2) OS-specific fallback
+            final String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+            List<List<String>> candidates = new ArrayList<>();
+
+            if (os.contains("mac")) {
+                candidates.add(Arrays.asList("open", path.toString()));
+            } else if (os.contains("win")) {
+                // 'start' needs to run via cmd; empty title "" required when path may contain spaces
+                candidates.add(Arrays.asList("cmd", "/c", "start", "", path.toString()));
+            } else {
+                // Linux/BSD: try common launchers in order
+                candidates.add(Arrays.asList("xdg-open", path.toString()));
+                candidates.add(Arrays.asList("gio", "open", path.toString()));
+                candidates.add(Arrays.asList("kde-open", path.toString()));
+                candidates.add(Arrays.asList("gnome-open", path.toString()));
+            }
+
+            IOException lastErr = null;
+            for (List<String> cmd : candidates) {
+                try {
+                    new ProcessBuilder(cmd).redirectErrorStream(true).start();
+                    return;
+                } catch (IOException e) {
+                    lastErr = e; // try next
+                }
+            }
+            if (lastErr != null) throw lastErr;
+
+        } catch (IOException e) {
+            if (!useGui) {
+                System.err.println("openFile: failed to open " + path + " — " + e.getMessage());
             }
         }
     }
